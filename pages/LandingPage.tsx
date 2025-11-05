@@ -10,6 +10,14 @@ const LandingPage: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
 
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+    e.preventDefault();
+    document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth' });
+    if (mobileMenuOpen) {
+      setMobileMenuOpen(false);
+    }
+  };
+
   const features = [
     { icon: <ShieldCheckIcon className="w-12 h-12" />, title: 'Blockchain Security', description: 'Immutable record keeping ensures your academic work is permanently secured and tamper-proof.' },
     { icon: <CubeTransparentIcon className="w-12 h-12" />, title: 'Decentralized Verification', description: 'Cross-institutional plagiarism detection without relying on centralized databases.' },
@@ -42,9 +50,9 @@ const LandingPage: React.FC = () => {
               <span className="ml-2 text-xl font-bold text-gray-900">PlagiarismGuard</span>
             </div>
             <div className="hidden md:flex items-center space-x-8">
-              <a href="#features" className="text-gray-600 hover:text-primary-600 transition">Features</a>
-              <a href="#how-it-works" className="text-gray-600 hover:text-primary-600 transition">How It Works</a>
-              <a href="#about" className="text-gray-600 hover:text-primary-600 transition">About</a>
+              <a href="#features" onClick={(e) => handleNavClick(e, 'features')} className="text-gray-600 hover:text-primary-600 transition">Features</a>
+              <a href="#how-it-works" onClick={(e) => handleNavClick(e, 'how-it-works')} className="text-gray-600 hover:text-primary-600 transition">How It Works</a>
+              <a href="#about" onClick={(e) => handleNavClick(e, 'about')} className="text-gray-600 hover:text-primary-600 transition">About</a>
               <Link to="/login" className="text-gray-600 hover:text-primary-600 transition">Login</Link>
               <Link to="/register" className="bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition">Get Started</Link>
             </div>
@@ -60,9 +68,9 @@ const LandingPage: React.FC = () => {
         {mobileMenuOpen && (
           <div className="md:hidden bg-white border-t">
             <div className="px-2 pt-2 pb-3 space-y-1">
-              <a href="#features" className="block px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-md">Features</a>
-              <a href="#how-it-works" className="block px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-md">How It Works</a>
-              <a href="#about" className="block px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-md">About</a>
+              <a href="#features" onClick={(e) => handleNavClick(e, 'features')} className="block px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-md">Features</a>
+              <a href="#how-it-works" onClick={(e) => handleNavClick(e, 'how-it-works')} className="block px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-md">How It Works</a>
+              <a href="#about" onClick={(e) => handleNavClick(e, 'about')} className="block px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-md">About</a>
               <Link to="/login" className="block px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-md">Login</Link>
               <Link to="/register" className="block px-3 py-2 text-primary-600 font-medium hover:bg-gray-50 rounded-md">Get Started</Link>
             </div>
@@ -200,14 +208,14 @@ const LandingPage: React.FC = () => {
             <div>
               <h4 className="font-semibold mb-4">Product</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="#features" className="hover:text-white transition">Features</a></li>
-                <li><a href="#how-it-works" className="hover:text-white transition">How It Works</a></li>
+                <li><a href="#features" onClick={(e) => handleNavClick(e, 'features')} className="hover:text-white transition">Features</a></li>
+                <li><a href="#how-it-works" onClick={(e) => handleNavClick(e, 'how-it-works')} className="hover:text-white transition">How It Works</a></li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold mb-4">Company</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="#about" className="hover:text-white transition">About</a></li>
+                <li><a href="#about" onClick={(e) => handleNavClick(e, 'about')} className="hover:text-white transition">About</a></li>
                 <li><a href="#" className="hover:text-white transition">Contact</a></li>
               </ul>
             </div>

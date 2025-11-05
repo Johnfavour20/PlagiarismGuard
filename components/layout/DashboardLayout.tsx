@@ -1,3 +1,4 @@
+
 import React, { useState, ReactNode } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.tsx';
@@ -29,7 +30,7 @@ const DashboardLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
     } else if (user?.role === 'lecturer') {
       return [
         ...baseItems,
-        { name: 'My Submissions', href: '/lecturer/submissions', icon: <DocumentTextIcon className="h-5 w-5" /> },
+        { name: 'All Submissions', href: '/lecturer/submissions', icon: <DocumentTextIcon className="h-5 w-5" /> },
         { name: 'Reports', href: '/lecturer/reports', icon: <ChartBarIcon className="h-5 w-5" /> },
       ];
     } else { // Student

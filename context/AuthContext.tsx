@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import { toast } from 'react-toastify';
 import { User, AuthContextType } from '../types.ts';
@@ -54,9 +55,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // Initialize mock data if it doesn't exist
     if (!localStorage.getItem('users')) {
       const mockUsers: User[] = [
-        { _id: 'user-admin-01', name: 'Admin User', email: 'admin@uniport.edu.ng', password: 'admin123', role: 'admin', university: 'University of Port Harcourt' },
-        { _id: 'user-lecturer-01', name: 'Lecturer Tega', email: 'lecturer@uniport.edu.ng', password: 'lecturer123', role: 'lecturer', university: 'University of Port Harcourt' },
-        { _id: 'user-student-01', name: 'Student Ada', email: 'student@uniport.edu.ng', password: 'student123', role: 'student', university: 'University of Port Harcourt' },
+        { _id: 'user-admin-01', name: 'Admin User', email: 'admin@uniport.edu.ng', password: 'admin123', role: 'admin', university: 'University of Port Harcourt', createdAt: new Date('2024-01-01T10:00:00Z').toISOString() },
+        { _id: 'user-lecturer-01', name: 'Lecturer Tega', email: 'lecturer@uniport.edu.ng', password: 'lecturer123', role: 'lecturer', university: 'University of Port Harcourt', createdAt: new Date('2024-01-05T11:30:00Z').toISOString() },
+        { _id: 'user-student-01', name: 'Student Ada', email: 'student@uniport.edu.ng', password: 'student123', role: 'student', university: 'University of Port Harcourt', createdAt: new Date('2024-01-10T14:00:00Z').toISOString() },
       ];
       setUsers(mockUsers);
     }
@@ -86,6 +87,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const newUser: User = {
           ...userData,
           _id: `user-${Date.now()}`,
+          createdAt: new Date().toISOString(),
         };
         
         users.push(newUser);

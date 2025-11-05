@@ -6,6 +6,7 @@ export interface User {
   role: 'student' | 'lecturer' | 'admin';
   university: string;
   password?: string; // Add password for mock authentication
+  createdAt: string; // ISO string
 }
 
 export interface PlagiarizedSource {

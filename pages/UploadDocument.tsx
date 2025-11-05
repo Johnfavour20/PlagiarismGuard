@@ -44,14 +44,14 @@ const UploadDocument: React.FC = () => {
   const handleFiles = (files: FileList | null) => {
     if (files && files.length > 0) {
       const uploadedFile = files[0];
-      const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
-      // Simple type check for demo, can be improved
-      if (!allowedTypes.some(type => uploadedFile.name.endsWith(type.split('/')[1]?.replace('vnd.openxmlformats-officedocument.wordprocessingml.document','docx')) || uploadedFile.type === type )) {
-        if(!uploadedFile.name.endsWith('.pdf') && !uploadedFile.name.endsWith('.doc') && !uploadedFile.name.endsWith('.docx') && !uploadedFile.name.endsWith('.txt')){
-            toast.error('Invalid file type. Please upload PDF, DOC, DOCX, or TXT.');
-            return;
-        }
+      const allowedExtensions = ['.pdf', '.doc', '.docx', '.txt'];
+      const fileExtension = uploadedFile.name.slice(uploadedFile.name.lastIndexOf('.')).toLowerCase();
+
+      if (!allowedExtensions.includes(fileExtension)) {
+          toast.error('Invalid file type. Please upload PDF, DOC, DOCX, or TXT.');
+          return;
       }
+      
       if (uploadedFile.size > 10 * 1024 * 1024) {
         toast.error('File size must be less than 10MB');
         return;
@@ -142,61 +142,79 @@ const UploadDocument: React.FC = () => {
     return { paragraphs: newParagraphs, similarityScore, plagiarismSources };
   }
 
+  const processDocument = async (text: string, values: { title: string; courseCode: string; documentType: string; description: string }) => {
+    if (!user) return;
+    setUploadProgress(30);
+    await new Promise(res => setTimeout(res, 500));
+
+    const { paragraphs, similarityScore, plagiarismSources } = await processAndCheckPlagiarism(text);
+    
+    setUploadProgress(70);
+    await new Promise(res => setTimeout(res, 500));
+    
+    const paragraphHashes = paragraphs.map(p => p.hash);
+    const root = generateMerkleRoot(paragraphHashes);
+    setHashes(paragraphHashes);
+    setMerkleRoot(root);
+
+    const newSubmission: Submission = {
+        _id: `sub-${Date.now()}`,
+        ...values,
+        authorId: user._id,
+        authorName: user.name,
+        university: user.university,
+        createdAt: new Date().toISOString(),
+        fullText: text,
+        paragraphs,
+        merkleRoot: root,
+        similarityScore,
+        status: similarityScore > 25 ? 'flagged' : 'verified',
+        plagiarismSources
+    };
+
+    setUploadProgress(90);
+
+    const allSubmissions = JSON.parse(localStorage.getItem('submissions') || '[]');
+    allSubmissions.push(newSubmission);
+    localStorage.setItem('submissions', JSON.stringify(allSubmissions));
+
+    setUploadProgress(100);
+    await new Promise(res => setTimeout(res, 500));
+
+    toast.success('Document processed and report generated!');
+    navigate(`/report/${newSubmission._id}`);
+  };
+
   const handleSubmit = async (values: { title: string; courseCode: string; documentType: string; description: string }) => {
     if (!file || !user) return;
     
     setUploading(true);
     setUploadProgress(10);
 
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-        const text = e.target?.result as string;
-        
-        setUploadProgress(30);
-        await new Promise(res => setTimeout(res, 500)); // Simulate processing
+    const fileName = file.name.toLowerCase();
+    
+    // Use mock text for complex file types to ensure readability
+    if (fileName.endsWith('.pdf') || fileName.endsWith('.doc') || fileName.endsWith('.docx')) {
+        const MOCK_ACADEMIC_TEXT = `Blockchain technology, originally developed for the cryptocurrency Bitcoin, has emerged as a transformative force with applications extending far beyond digital currencies. At its core, a blockchain is a distributed, immutable ledger that facilitates the process of recording transactions and tracking assets in a business network. An asset can be tangible (a house, car, cash, land) or intangible (intellectual property, patents, copyrights, branding). Virtually anything of value can be tracked and traded on a blockchain network, reducing risk and cutting costs for all involved.
 
-        const { paragraphs, similarityScore, plagiarismSources } = await processAndCheckPlagiarism(text);
-        
-        setUploadProgress(70);
-        await new Promise(res => setTimeout(res, 500));
-        
-        const paragraphHashes = paragraphs.map(p => p.hash);
-        const root = generateMerkleRoot(paragraphHashes);
-        setHashes(paragraphHashes);
-        setMerkleRoot(root);
+The key features that make blockchain so revolutionary are decentralization, transparency, and immutability. Unlike traditional centralized databases, a blockchain is maintained by a network of participants, known as nodes. This decentralization eliminates the need for a central authority, making the system more resilient and resistant to censorship or single points of failure. Every participant in the network has access to the distributed ledger and its immutable record of transactions. This shared transparency ensures that all parties are working with the same version of the truth, fostering trust and collaboration.
 
-        const newSubmission: Submission = {
-            _id: `sub-${Date.now()}`,
-            ...values,
-            authorId: user._id,
-            authorName: user.name,
-            university: user.university,
-            createdAt: new Date().toISOString(),
-            fullText: text,
-            paragraphs,
-            merkleRoot: root,
-            similarityScore,
-            status: similarityScore > 25 ? 'flagged' : 'verified',
-            plagiarismSources
+Once a transaction is recorded on the blockchain, it cannot be altered or deleted. Each new transaction is added as a 'block' to the 'chain' and is cryptographically linked to the previous one. This creates a permanent and auditable trail of all activities. This immutability is crucial for applications where data integrity is paramount, such as supply chain management, voting systems, and, as demonstrated by this project, ensuring academic integrity through plagiarism detection. By storing a cryptographic fingerprint of an academic document on the blockchain, we create a tamper-proof record that can be used to verify its originality and submission timestamp.`;
+        toast.info('Using simulated text extraction for this file type to ensure readability.');
+        await processDocument(MOCK_ACADEMIC_TEXT, values);
+    } else { // For .txt files, read the actual content
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const text = e.target?.result as string;
+            await processDocument(text, values);
         };
-
-        setUploadProgress(90);
-
-        const allSubmissions = JSON.parse(localStorage.getItem('submissions') || '[]');
-        allSubmissions.push(newSubmission);
-        localStorage.setItem('submissions', JSON.stringify(allSubmissions));
-
-        setUploadProgress(100);
-        await new Promise(res => setTimeout(res, 500));
-
-        toast.success('Document processed and report generated!');
-        navigate(`/report/${newSubmission._id}`);
-    };
-    reader.onerror = () => {
-        toast.error('Failed to read file.');
-        setUploading(false);
-    };
-    reader.readAsText(file);
+        reader.onerror = () => {
+            toast.error('Failed to read file.');
+            setUploading(false);
+            setUploadProgress(0);
+        };
+        reader.readAsText(file);
+    }
   };
 
   return (

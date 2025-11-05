@@ -128,16 +128,64 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     toast.info('Logged out successfully');
   };
   
-  // These are not implemented in the UI, so mock simply
-  const updateProfile = async (updates: any) => {
-    toast.info("Profile update functionality is not fully implemented in this mock.");
-    return { success: true };
-  }
-  const changePassword = async (currentPassword: string, newPassword: string) => {
-    toast.info("Change password functionality is not fully implemented in this mock.");
-    return { success: true };
-  }
+  const updateProfile = async (updates: { name: string; university: string }): Promise<{ success: boolean; user?: User; error?: string }> => {
+    return new Promise(resolve => {
+        setTimeout(() => {
+            if (!user) return resolve({ success: false, error: 'Not authenticated' });
 
+            const users = getUsers();
+            const userIndex = users.findIndex(u => u._id === user._id);
+
+            if (userIndex === -1) {
+                toast.error('User not found.');
+                return resolve({ success: false, error: 'User not found' });
+            }
+            
+            // Update the full user list
+            const userWithPassword = users[userIndex].password;
+            const updatedUserInList = { ...users[userIndex], ...updates, password: userWithPassword };
+            users[userIndex] = updatedUserInList;
+            setUsers(users);
+
+            // Update the session user
+            const updatedSessionUser = { ...getLoggedInUser(), ...updates };
+            setLoggedInUser(updatedSessionUser as User);
+            setUser(updatedSessionUser as User);
+
+            toast.success('Profile updated successfully!');
+            resolve({ success: true, user: updatedSessionUser as User });
+        }, MOCK_API_DELAY);
+    });
+  };
+
+  const changePassword = async (currentPassword: string, newPassword: string): Promise<{ success: boolean; error?: string }> => {
+    return new Promise(resolve => {
+        setTimeout(() => {
+            if (!user) return resolve({ success: false, error: 'Not authenticated' });
+
+            const users = getUsers();
+            const userIndex = users.findIndex(u => u._id === user._id);
+
+            if (userIndex === -1) {
+                toast.error('User not found.');
+                return resolve({ success: false, error: 'User not found' });
+            }
+            
+            const userWithPassword = users[userIndex];
+
+            if (userWithPassword.password !== currentPassword) {
+                toast.error('Incorrect current password.');
+                return resolve({ success: false, error: 'Incorrect current password' });
+            }
+
+            users[userIndex] = { ...userWithPassword, password: newPassword };
+            setUsers(users);
+            
+            toast.success('Password changed successfully!');
+            resolve({ success: true });
+        }, MOCK_API_DELAY);
+    });
+  };
 
   const value: AuthContextType = {
     user,

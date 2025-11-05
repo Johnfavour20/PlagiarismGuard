@@ -52,7 +52,7 @@ export interface AuthContextType {
   register: (userData: any) => Promise<{ success: boolean; user?: User; error?: string }>;
   login: (email: string, password:string) => Promise<{ success: boolean; user?: User; error?: string }>;
   logout: () => void;
-  updateProfile: (updates: any) => Promise<{ success: boolean; error?: string }>;
+  updateProfile: (updates: { name: string; university: string }) => Promise<{ success: boolean; user?: User; error?: string }>;
   changePassword: (currentPassword: string, newPassword: string) => Promise<{ success: boolean; error?: string }>;
   isAuthenticated: boolean;
   isAdmin: boolean;

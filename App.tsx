@@ -16,6 +16,7 @@ import FlaggedSubmissions from './pages/FlaggedSubmissions';
 import BlockchainVerification from './pages/BlockchainVerification';
 import NotFound from './pages/NotFound';
 import PrivateRoute from './components/common/PrivateRoute';
+import Settings from './pages/Settings';
 
 function App() {
   return (
@@ -80,6 +81,12 @@ function App() {
              <Route path="/blockchain/verify/:txHash" element={
                 <PrivateRoute>
                   <BlockchainVerification />
+                </PrivateRoute>
+              }
+            />
+            <Route path="/settings" element={
+                <PrivateRoute>
+                  <Settings />
                 </PrivateRoute>
               }
             />

@@ -1,0 +1,5 @@
+{
+  "name": "PlagiarismGuard",
+  "description": "A blockchain-powered plagiarism detection system for academic institutions. It provides a secure, transparent, and decentralized way to verify the originality of academic documents.",
+  "requestFramePermissions": []
+}

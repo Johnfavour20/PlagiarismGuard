@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import DashboardLayout from '../components/layout/DashboardLayout';
-import { Submission } from '../types';
+import DashboardLayout from '../components/layout/DashboardLayout.tsx';
+import { Submission } from '../types.ts';
 import { CheckCircleIcon, ExclamationTriangleIcon, DocumentTextIcon, CubeTransparentIcon } from '@heroicons/react/24/outline';
 
 const PlagiarismReport: React.FC = () => {

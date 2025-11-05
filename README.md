@@ -7,7 +7,7 @@ This application runs entirely in your browser, utilizing `localStorage` to crea
 ## ✨ Key Features
 
 - **Role-Based Access Control**: Separate, feature-rich dashboards for Students, Lecturers, and Administrators.
-- **Secure Document Upload**: A user-friendly interface for uploading documents (`.txt`, `.pdf`, `.docx`).
+- **Secure Document Upload**: A user-friendly interface for uploading documents (`.txt`, `.pdf`, `.doc`, `.docx`).
 - **Complete Client-Side Processing**: All logic, including file reading, text extraction, hashing, and plagiarism analysis, is handled efficiently within the browser.
 - **Realistic Plagiarism Detection**: The system compares uploaded documents against a simulated database of all previous submissions stored locally.
 - **Detailed Plagiarism Reports**: Generates comprehensive reports showing:
@@ -33,7 +33,7 @@ The entire application is brought to life using the browser's built-in capabilit
 - **Submissions**: When a document is uploaded, its full text, metadata, generated hashes, and plagiarism report are stored as a single JSON object in a `submissions` array in `localStorage`.
 
 #### 2. The Plagiarism Check Workflow
-1.  **File Reading & Text Extraction**: The app uses the `FileReader` API to read files. For `.docx` and `.pdf`, it uses client-side libraries (`mammoth.js`, `pdf.js`) to extract plain text content.
+1.  **File Reading**: The `FileReader` API reads the uploaded document's content as plain text.
 2.  **Paragraph Segmentation**: The text is split into individual paragraphs. Paragraphs below a certain length are ignored to reduce noise.
 3.  **Hashing**: Each paragraph is converted into a unique **SHA-256 hash** using `Crypto-JS`.
 4.  **Comparison**: The app iterates through every paragraph hash of the new document and compares it against all paragraph hashes of *every previously submitted document* stored in `localStorage`.
@@ -57,7 +57,6 @@ Instead of connecting to a real blockchain, we simulate its core principle of ve
 - **Form Management**: Formik & Yup
 - **Hashing**: Crypto-JS
 - **Notifications**: React Toastify
-- **Document Parsing**: Mammoth.js (for .docx), PDF.js (for .pdf)
 
 ---
 

@@ -1,13 +1,12 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext.tsx';
 import {
   DocumentTextIcon, CheckCircleIcon, ExclamationTriangleIcon, UserGroupIcon, ChartBarIcon,
   ArrowUpIcon, ArrowDownIcon, CubeTransparentIcon, FlagIcon
 } from '@heroicons/react/24/outline';
-import DashboardLayout from '../components/layout/DashboardLayout';
-import { Submission, User } from '../types';
+import DashboardLayout from '../components/layout/DashboardLayout.tsx';
+import { Submission, User } from '../types.ts';
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();

@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext.tsx';
 import { ShieldCheckIcon, UserIcon, EnvelopeIcon, LockClosedIcon, BuildingLibraryIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 
 const RegisterPage: React.FC = () => {

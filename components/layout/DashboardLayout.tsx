@@ -1,7 +1,6 @@
-
 import React, { useState, ReactNode } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext.tsx';
 import {
   ShieldCheckIcon, HomeIcon, DocumentTextIcon, FlagIcon, UserGroupIcon, ChartBarIcon,
   CogIcon, ArrowRightOnRectangleIcon, Bars3Icon, XMarkIcon, CubeTransparentIcon, BellIcon

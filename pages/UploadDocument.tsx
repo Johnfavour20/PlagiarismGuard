@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, DragEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useFormik } from 'formik';
@@ -8,9 +7,9 @@ import { toast } from 'react-toastify';
 import {
   CloudArrowUpIcon, DocumentTextIcon, XMarkIcon, CheckCircleIcon, CubeTransparentIcon
 } from '@heroicons/react/24/outline';
-import DashboardLayout from '../components/layout/DashboardLayout';
-import { useAuth } from '../context/AuthContext';
-import { Submission, Paragraph, PlagiarizedSource } from '../types';
+import DashboardLayout from '../components/layout/DashboardLayout.tsx';
+import { useAuth } from '../context/AuthContext.tsx';
+import { Submission, Paragraph, PlagiarizedSource } from '../types.ts';
 
 const UploadDocument: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);

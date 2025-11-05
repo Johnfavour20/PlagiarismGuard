@@ -1,22 +1,21 @@
-
 import React from 'react';
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider } from './context/AuthContext.tsx';
 
-import LandingPage from './pages/LandingPage';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import AdminDashboard from './pages/AdminDashboard';
-import LecturerDashboard from './pages/LecturerDashboard';
-import StudentDashboard from './pages/StudentDashboard';
-import UploadDocument from './pages/UploadDocument';
-import PlagiarismReport from './pages/PlagiarismReport';
-import FlaggedSubmissions from './pages/FlaggedSubmissions';
-import BlockchainVerification from './pages/BlockchainVerification';
-import NotFound from './pages/NotFound';
-import PrivateRoute from './components/common/PrivateRoute';
-import Settings from './pages/Settings';
+import LandingPage from './pages/LandingPage.tsx';
+import LoginPage from './pages/LoginPage.tsx';
+import RegisterPage from './pages/RegisterPage.tsx';
+import AdminDashboard from './pages/AdminDashboard.tsx';
+import LecturerDashboard from './pages/LecturerDashboard.tsx';
+import StudentDashboard from './pages/StudentDashboard.tsx';
+import UploadDocument from './pages/UploadDocument.tsx';
+import PlagiarismReport from './pages/PlagiarismReport.tsx';
+import FlaggedSubmissions from './pages/FlaggedSubmissions.tsx';
+import BlockchainVerification from './pages/BlockchainVerification.tsx';
+import NotFound from './pages/NotFound.tsx';
+import PrivateRoute from './components/common/PrivateRoute.tsx';
+import Settings from './pages/Settings.tsx';
 
 function App() {
   return (

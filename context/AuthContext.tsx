@@ -1,7 +1,6 @@
-
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import { toast } from 'react-toastify';
-import { User, AuthContextType } from '../types';
+import { User, AuthContextType } from '../types.ts';
 
 // --- Mock Database (localStorage wrappers) ---
 const MOCK_API_DELAY = 500;

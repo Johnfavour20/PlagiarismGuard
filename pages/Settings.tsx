@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { useAuth } from '../context/AuthContext';
-import DashboardLayout from '../components/layout/DashboardLayout';
+import { useAuth } from '../context/AuthContext.tsx';
+import DashboardLayout from '../components/layout/DashboardLayout.tsx';
 import { UserIcon, BuildingLibraryIcon, LockClosedIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
 

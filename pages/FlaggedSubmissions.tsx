@@ -1,67 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import DashboardLayout from '../components/layout/DashboardLayout.tsx';
-import { Submission } from '../types.ts';
+
+import React from 'react';
+import DashboardLayout from '../components/layout/DashboardLayout';
 
 const FlaggedSubmissions: React.FC = () => {
-    const [flagged, setFlagged] = useState<Submission[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        try {
-            const allSubmissions = JSON.parse(localStorage.getItem('submissions') || '[]') as Submission[];
-            const flaggedSubs = allSubmissions.filter(s => s.status === 'flagged');
-            const sorted = flaggedSubs.sort((a,b) => b.similarityScore - a.similarityScore);
-            setFlagged(sorted);
-        } catch (e) {
-            console.error("Failed to load submissions", e);
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
-    return (
-        <DashboardLayout>
-            <h1 className="text-3xl font-bold text-gray-900 mb-6">Flagged Submissions for Review</h1>
-            <div className="bg-white rounded-xl shadow-md">
-                <div className="p-6 border-b border-gray-200">
-                    <h2 className="text-xl font-semibold text-gray-900">Submissions with High Similarity</h2>
-                </div>
-                <div className="overflow-x-auto">
-                    {loading ? (
-                        <div className="p-8 text-center text-gray-500">Loading flagged submissions...</div>
-                    ) : flagged.length === 0 ? (
-                        <div className="p-8 text-center text-gray-500">There are no flagged submissions to review.</div>
-                    ) : (
-                        <table className="w-full">
-                            <thead className="bg-gray-50">
-                                <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Document Title</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Author</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Similarity Score</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-200">
-                                {flagged.map((sub) => (
-                                    <tr key={sub._id} className="hover:bg-gray-50">
-                                        <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-800">{sub.title}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{sub.authorName}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap font-semibold text-red-600">{sub.similarityScore.toFixed(2)}%</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{new Date(sub.createdAt).toLocaleDateString()}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <Link to={`/report/${sub._id}`} className="text-primary-600 hover:text-primary-800">Review Report</Link>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    )}
-                </div>
-            </div>
-        </DashboardLayout>
-    );
+  return (
+    <DashboardLayout>
+      <div className="bg-white p-8 rounded-xl shadow-md">
+        <h1 className="text-3xl font-bold text-gray-900">Flagged Submissions</h1>
+        <p className="mt-4 text-gray-600">A list of submissions with high similarity scores will be displayed here for review.</p>
+        <p className="mt-2 text-gray-500">This page is under construction.</p>
+      </div>
+    </DashboardLayout>
+  );
 };
 
 export default FlaggedSubmissions;

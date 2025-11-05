@@ -1,16 +1,20 @@
-
 import React, { useState, useRef, DragEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import CryptoJS from 'crypto-js';
 import { toast } from 'react-toastify';
+import mammoth from 'mammoth';
+import * as pdfjsLib from 'pdfjs-dist';
 import {
   CloudArrowUpIcon, DocumentTextIcon, XMarkIcon, CheckCircleIcon, CubeTransparentIcon
 } from '@heroicons/react/24/outline';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import { useAuth } from '../context/AuthContext';
 import { Submission, Paragraph, PlagiarizedSource } from '../types';
+
+// Set worker source for pdf.js, which is required for it to work from a CDN
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://esm.sh/pdfjs-dist@4.2.67/build/pdf.worker.mjs`;
 
 const UploadDocument: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -45,15 +49,14 @@ const UploadDocument: React.FC = () => {
   const handleFiles = (files: FileList | null) => {
     if (files && files.length > 0) {
       const uploadedFile = files[0];
-      const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
-      // Simple type check for demo, can be improved
-      if (!allowedTypes.some(type => uploadedFile.name.endsWith(type.split('/')[1]?.replace('vnd.openxmlformats-officedocument.wordprocessingml.document','docx')) || uploadedFile.type === type )) {
-        if(!uploadedFile.name.endsWith('.pdf') && !uploadedFile.name.endsWith('.doc') && !uploadedFile.name.endsWith('.docx') && !uploadedFile.name.endsWith('.txt')){
-            toast.error('Invalid file type. Please upload PDF, DOC, DOCX, or TXT.');
-            return;
-        }
+      const allowedExtensions = ['.pdf', '.docx', '.txt'];
+      const fileExtension = '.' + uploadedFile.name.split('.').pop()?.toLowerCase();
+
+      if (!allowedExtensions.includes(fileExtension)) {
+        toast.error('Invalid file type. Please upload PDF, DOCX, or TXT.');
+        return;
       }
-      if (uploadedFile.size > 10 * 1024 * 1024) {
+      if (uploadedFile.size > 10 * 1024 * 1024) { // 10MB limit
         toast.error('File size must be less than 10MB');
         return;
       }
@@ -99,7 +102,6 @@ const UploadDocument: React.FC = () => {
   };
 
   const processAndCheckPlagiarism = async (text: string): Promise<{paragraphs: Paragraph[], similarityScore: number, plagiarismSources: PlagiarizedSource[]}> => {
-    // 1. Process new document
     const newParagraphsText = text.split('\n').filter(p => p.trim().length > 10);
     const newParagraphs: Paragraph[] = newParagraphsText.map(p => ({
         text: p,
@@ -107,16 +109,14 @@ const UploadDocument: React.FC = () => {
         isPlagiarized: false
     }));
 
-    // 2. Fetch existing submissions
     const allSubmissions = JSON.parse(localStorage.getItem('submissions') || '[]') as Submission[];
     
-    // 3. Compare hashes
     let plagiarizedCount = 0;
     const sources: {[key: string]: {doc: Submission, count: number}} = {};
 
     newParagraphs.forEach(newP => {
         for (const existingDoc of allSubmissions) {
-            if (existingDoc.authorId === user?._id) continue; // Don't check against own previous work
+            if (existingDoc.authorId === user?._id) continue;
             const matchingParagraph = existingDoc.paragraphs.find(existingP => existingP.hash === newP.hash);
             if (matchingParagraph) {
                 newP.isPlagiarized = true;
@@ -126,7 +126,7 @@ const UploadDocument: React.FC = () => {
                     sources[existingDoc._id] = { doc: existingDoc, count: 0 };
                 }
                 sources[existingDoc._id].count++;
-                break; // Stop checking other docs for this paragraph
+                break;
             }
         }
     });
@@ -151,10 +151,45 @@ const UploadDocument: React.FC = () => {
 
     const reader = new FileReader();
     reader.onload = async (e) => {
-        const text = e.target?.result as string;
-        
+        let text = '';
+        try {
+            const fileContent = e.target?.result;
+            if (!fileContent) throw new Error("Could not read file content.");
+
+            setUploadProgress(20); // Indicate parsing has started
+            if (file.name.toLowerCase().endsWith('.txt')) {
+                text = fileContent as string;
+            } else if (file.name.toLowerCase().endsWith('.docx')) {
+                const result = await mammoth.extractRawText({ arrayBuffer: fileContent as ArrayBuffer });
+                text = result.value;
+            } else if (file.name.toLowerCase().endsWith('.pdf')) {
+                const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(fileContent as ArrayBuffer) }).promise;
+                const pageTexts = [];
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    const pageText = textContent.items.map(item => ('str' in item ? item.str : '')).join(' ');
+                    pageTexts.push(pageText);
+                }
+                text = pageTexts.join('\n\n');
+            }
+        } catch (error) {
+            console.error('Error parsing file:', error);
+            toast.error('Could not extract text from the document.');
+            setUploading(false);
+            setUploadProgress(0);
+            return;
+        }
+
+        if (!text || text.trim().length === 0) {
+            toast.error('Extracted text is empty. The file might be image-based or corrupted.');
+            setUploading(false);
+            setUploadProgress(0);
+            return;
+        }
+
         setUploadProgress(30);
-        await new Promise(res => setTimeout(res, 500)); // Simulate processing
+        await new Promise(res => setTimeout(res, 500));
 
         const { paragraphs, similarityScore, plagiarismSources } = await processAndCheckPlagiarism(text);
         
@@ -197,7 +232,12 @@ const UploadDocument: React.FC = () => {
         toast.error('Failed to read file.');
         setUploading(false);
     };
-    reader.readAsText(file);
+
+    if (file.name.toLowerCase().endsWith('.txt')) {
+        reader.readAsText(file);
+    } else { // For .docx and .pdf
+        reader.readAsArrayBuffer(file);
+    }
   };
 
   return (
@@ -229,12 +269,12 @@ const UploadDocument: React.FC = () => {
               {!file ? (
                 <div onDragEnter={handleDragIn} onDragLeave={handleDragOut} onDragOver={handleDrag} onDrop={handleDrop} onClick={onBrowseClick}
                   className={`border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition ${isDragActive ? 'border-primary-500 bg-primary-50' : 'border-gray-300 hover:border-primary-400 hover:bg-gray-50'}`}>
-                  <input ref={inputRef} type="file" className="hidden" onChange={(e) => handleFiles(e.target.files)} accept=".pdf,.doc,.docx,.txt" />
+                  <input ref={inputRef} type="file" className="hidden" onChange={(e) => handleFiles(e.target.files)} accept=".pdf,.docx,.txt" />
                   <CloudArrowUpIcon className="mx-auto h-16 w-16 text-gray-400 mb-4" />
                   <p className="text-lg font-medium text-gray-900 mb-2">
                     {isDragActive ? "Drop the file here..." : "Drag and drop or click to browse"}
                   </p>
-                  <p className="text-xs text-gray-500">PDF, DOC, DOCX, TXT (Max 10MB)</p>
+                  <p className="text-xs text-gray-500">PDF, DOCX, TXT (Max 10MB)</p>
                 </div>
               ) : (
                 <div className="border-2 border-green-300 bg-green-50 rounded-xl p-6">
